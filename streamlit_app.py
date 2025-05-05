@@ -34,7 +34,14 @@ if page == "Member Order Form":
     member_id = st.text_input("Member Number")
     coffee = st.selectbox("☕ Select Coffee", ["Latte", "Flat White", "Long Black", "Cappuccino", "Espresso"])
     size = st.radio("📏 Size", ["Regular", "Large"], horizontal=True)
-    milk = st.selectbox("🥛 Milk Type", ["Full Cream", "Skim", "Almond", "Soy", "Oat"])
+    milk_based = ["Latte", "Flat White", "Cappuccino"]
+    milk = None  # Default to None if not shown
+
+    if coffee in milk_based:
+        milk = st.selectbox("🥛 Milk Type", ["Full Cream", "Skim", "Almond", "Soy", "Oat"])
+else:
+    st.markdown("🥛 Milk not required for this coffee type.")
+    sugar = st.checkbox("🍬 Add Sugar?") 
     notes = st.text_input("📝 Notes (optional)")
     if st.button("Place Order"):
         if not member_id:
@@ -45,7 +52,8 @@ if page == "Member Order Form":
                 "member_id": member_id,
                 "coffee": coffee,
                 "size": size,
-                "milk": milk,
+                "milk": milk, #can be none
+                "sugar": sugar,
                 "notes": notes,
                 "status": "pending",
                 "timestamp": int(time.time())
@@ -77,7 +85,8 @@ elif page == "Staff Dashboard":
             with st.expander(f"Order from Member {order.get('member_id')}"):
                 st.write(f"**Coffee:** {order.get('coffee')}")
                 st.write(f"**Size:** {order.get('size')}")
-                st.write(f"**Milk:** {order.get('milk')}")
+                st.write(f"**Milk:** {order.get('milk', 'None')}")
+                st.write(f"**Sugar:** {'Yes' if order.get('sugar') else 'No'}")
                 st.write(f"**Notes:** {order.get('notes')}")
                 st.write(f"**Time:** {time.strftime('%H:%M:%S', time.localtime(order.get('timestamp')))}")
                 if st.button("✅ Mark Order as Completed", key=order_id):
