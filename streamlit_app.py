@@ -4,10 +4,15 @@ import firebase_admin
 from firebase_admin import credentials, db
 import time
 
-# --- Firebase Setup ---
+# Only initialize Firebase once
 if not firebase_admin._apps:
-    import json
-    cred = credentials.Certificate((st.secrets["firebase"]))
+    # Write secrets to a temporary JSON file (for Firebase Admin SDK)
+    firebase_json_path = "/tmp/firebase_key.json"
+    with open(firebase_json_path, "w") as f:
+        json.dump(st.secrets["firebase"], f)
+
+    # Initialize Firebase app
+    cred = credentials.Certificate(firebase_json_path)
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://bush-bar-coffee-order-default-rtdb.asia-southeast1.firebasedatabase.app/'
     })
