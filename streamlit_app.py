@@ -27,6 +27,28 @@ if not firebase_admin._apps:
 # --- Routing ---
 page = st.sidebar.selectbox("Choose View", ["Member Order Form", "Staff Dashboard"])
 
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, db
+import json
+import os
+import time
+
+# --- Firebase Setup ---
+if not firebase_admin._apps:
+    firebase_json_path = "/tmp/firebase_key.json"
+    firebase_dict = dict(st.secrets["firebase"])
+    firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
+    with open(firebase_json_path, "w") as f:
+        json.dump(firebase_dict, f)
+    cred = credentials.Certificate(firebase_json_path)
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://bush-bar-coffee-order-default-rtdb.asia-southeast1.firebasedatabase.app/'
+    })
+
+# --- Page Selector ---
+page = st.sidebar.selectbox("Choose a page", ["Member Order Form", "Staff Dashboard"])
+
 # --- Member View ---
 if page == "Member Order Form":
     st.title("⛳️ Halfway House Coffee Order")
@@ -34,15 +56,17 @@ if page == "Member Order Form":
     member_id = st.text_input("Member Number")
     coffee = st.selectbox("☕ Select Coffee", ["Latte", "Flat White", "Long Black", "Cappuccino", "Espresso"])
     size = st.radio("📏 Size", ["Regular", "Large"], horizontal=True)
-    milk_based = ["Latte", "Flat White", "Cappuccino"]
-    milk = None  # Default to None if not shown
 
+    milk_based = ["Latte", "Flat White", "Cappuccino"]
+    milk = None
     if coffee in milk_based:
         milk = st.selectbox("🥛 Milk Type", ["Full Cream", "Skim", "Almond", "Soy", "Oat"])
-else:
-    st.markdown("🥛 Milk not required for this coffee type.")
-    sugar = st.checkbox("🍬 Add Sugar?") 
+    else:
+        st.markdown("🥛 Milk not required for this coffee type.")
+
+    sugar = st.checkbox("🍬 Add Sugar?")
     notes = st.text_input("📝 Notes (optional)")
+
     if st.button("Place Order"):
         if not member_id:
             st.error("Please enter your member number.")
@@ -52,7 +76,7 @@ else:
                 "member_id": member_id,
                 "coffee": coffee,
                 "size": size,
-                "milk": milk, #can be none
+                "milk": milk,  # Can be None
                 "sugar": sugar,
                 "notes": notes,
                 "status": "pending",
