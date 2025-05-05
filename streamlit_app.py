@@ -7,7 +7,7 @@ import time
 # --- Firebase Setup ---
 if not firebase_admin._apps:
     import json
-    cred = credentials.Certificate(json.loads(st.secrets["firebase"]))
+    cred = credentials.Certificate((st.secrets["firebase"]))
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://bush-bar-coffee-order-default-rtdb.asia-southeast1.firebasedatabase.app/'
     })
