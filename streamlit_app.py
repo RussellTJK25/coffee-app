@@ -11,7 +11,7 @@ if not firebase_admin._apps:
     # Write secrets to a temporary JSON file (for Firebase Admin SDK)
     firebase_json_path = "/tmp/firebase_key.json"
     with open(firebase_json_path, "w") as f:
-        json.dump(st.secrets["firebase"], f)
+        json.dump(dict(st.secrets["firebase"]), f)
 
     # Initialize Firebase app
     cred = credentials.Certificate(firebase_json_path)
